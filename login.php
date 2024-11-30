@@ -1,22 +1,28 @@
-<style>
-  <?php include 'style.css';
-  ?>
-</style>
 <?php
 require 'functions.php';
 session_start();
 
+if (isset($_SESSION["user"])) {
+    $loggedin = true;
+} else {
+    $loggedin = false;
+}
+
 //for kicking uninvited guest
 if (isset($_SESSION["login"])) {
-    header("location: index.php");
+    header("Location: index.php");
     exit;
+}
+
+if (isset($_POST["register"])) {
+  header("Location: register.php");
 }
 
 if (isset($_GET["register"])) {
   if (empty($username) || empty($password)) {
-    header("location: register.php");
+    header("Location: register.php");
   } else {
-    header("location: register.php");
+    header("Location: register.php");
   }
     exit;
 }
@@ -27,12 +33,13 @@ if (isset($_POST["login"])) {
     //fetch username & password from user's input
     $username = mysqli_real_escape_string($db, $_POST["username"]);
     $password = mysqli_real_escape_string($db, $_POST["password"]);
-
-
     //for checking password and username is empty or not
-    /*if (empty($username) || empty($password)) {
-        echo "Username/Password harus diisi";
-    }*/
+    if (empty($username) || empty($password)) {
+        echo "<script>alert('Username/Password harus diisi');</script>";
+    }
+
+    $query_id = "SELECT ID FROM account WHERE username = '$username'";
+    $result_id = mysqli_query($db, $query_id);
 
     $result = mysqli_query($db, "SELECT *
                         FROM account
@@ -51,14 +58,19 @@ if (isset($_POST["login"])) {
             if ($row['role'] == "admin") {
                 // create admin session
                 $_SESSION['admin'] = true;
-                header("location:admin.php");
+                header("Location:admin.php");
                 exit;
             }
 
             if ($row['role'] == "user") {
                 // create user session
                 $_SESSION['user'] = true;
-                header("location:user.php");
+                foreach ($result_id as $r) {
+                    $_SESSION['user_id'] = $r['ID'];
+                    // $tes = $_SESSION['user_id'];
+                    // echo "<script>alert('$tes');</script>";
+                }
+                header("Location:index.php");
                 exit;
             }
         }
@@ -77,6 +89,10 @@ if (isset($_POST["login"])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
 
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Kanit:300,300i,400,400i,600,600i,700,700i|Varela:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
@@ -91,48 +107,43 @@ if (isset($_POST["login"])) {
 
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
+
+  <script src="app.js"></script>
 </head>
 
 <body>
-
-  <!-- ======= Top Bar ======= -->
-  <div id="topbar" class="d-flex align-items-center fixed-top">
-    <div class="container d-flex">
-      <div class="contact-info mr-auto">
-        <i class="icofont-phone"></i> +1 5589 55488 55
-        <span class="d-none d-lg-inline-block"><i class="icofont-clock-time icofont-rotate-180"></i> Mon-Sat: 11:00 AM - 23:00 PM</span>
-      </div>
-      <div class="languages">
-        <ul>
-          <li>En</li>
-          <li><a href="#">De</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
 
   <!-- ======= Header ======= -->
   <header id="header" class="fixed-top">
     <div class="container d-flex align-items-center">
 
-      <h1 class="logo mr-auto"><a href="index.html">Restaurantly</a></h1>
+      <!-- <h1 class="logo mr-auto"><a href="index.html">Restaurantly</a></h1> -->
       <!-- Uncomment below if you prefer to use an image logo -->
-      <!-- <a href="index.html" class="logo mr-auto"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
+      <a href="index.php" class="logo mr-auto"><img src="assets/img/logo/logo-red.png" onmouseover="this.src='assets/img/logo/logo-white.png';" onmouseout="this.src='assets/img/logo/logo-red.png';" alt="" class="img-fluid"></a>
 
       <nav class="nav-menu d-none d-lg-block">
         <ul>
-          <li class="active"><a href="index.html">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#menu">Menu</a></li>
-          <li><a href="#specials">Specials</a></li>
-          <li><a href="#events">Events</a></li>
-          <li><a href="#gallery">Gallery</a></li>
-          <li><a href="#chefs">Chefs</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li class="book-a-table text-center"><a href="#book-a-table">Book a table</a></li>
+          <?php
+          if ($loggedin) {
+            echo '<li><a href="checkout.php"><i class="icofont-cart-alt" style="font-size: 35px; color:white;"></i></a></li>';
+          }
+          ?>
+          <li class="book-a-table text-center">
+            <form action="" method="POST">
+                <?php
+                if ($loggedin) {
+                    echo "<button class='button logout btn btn-primary' type='submit' name='logout'>Log out!</button>";
+                } else {
+                    echo "<button class='button login btn btn-primary' type='submit' name='register'>Sign Up</button> ";
+                }
+                ?>
+                <!-- <br>
+                <a href="shoppingcart.php">Go to Shopping Cart</a> -->
+            </form>
+          </li>
+          <!-- <li class="book-a-table text-center"><a href="login.php">Login</a></li> -->
         </ul>
       </nav><!-- .nav-menu -->
-
     </div>
   </header><!-- End Header -->
 
@@ -140,10 +151,10 @@ if (isset($_POST["login"])) {
 
     <section id="login" class="login">
 
-      <div class="container" data-aos="fade-up" class="login">
+      <div class="container" data-aos="fade-up" class="login" style="background-color: white; opacity: 0.98; border-radius: 15px;">
 
         <div class="section-title-checkout">
-          <h2>Login</h2>
+          <h2 style="font-family: 'Meiryo';">ログイン</h2>
           <p>Sign In to SushiPay</p>
         </div>
 
@@ -173,49 +184,68 @@ if (isset($_POST["login"])) {
 
             <div class="form-group">
               <label for="username">Username/Email :</label>
-              <input type="text" name="username" id="username" class="form-control" placeholder="Please input username here!" required>
+              <input type="text" name="username" id="username" class="form-control" placeholder="Input your username or email here" required>
               <div class="invalid-feedback">Username/Email harus diisi</div>
               <?php
                 /*if (isset($flag1)) {
                     echo "Username harus diisi";
                 }*/
-                if(isset($_POST['login'])) {
-                  if (empty($username)) {
-                    echo '<div class="alert alert-danger" role="alert">';
-                    echo "Username/Email harus diisi";
-                    echo '</div>';
-                  }
-                }
+                // if(isset($_POST['login'])) {
+                //   if (empty($username)) {
+                //     echo '<div class="alert alert-danger" role="alert">';
+                //     echo "Username/Email harus diisi";
+                //     echo '</div>';
+                //   }
+                // }
               ?>
             </div>
 
             <div class="form-group">
               <label for="password">Password : </label>
-              <input type="password" name="password" class="form-control" id="password" placeholder="********" required>
+              <input type="password" name="password" class="form-control" id="password" placeholder="Input your password here" required>
               <div class="invalid-feedback">Password harus diisi</div>
               <?php
                   /*if (isset($flag2)) {
                       echo "Password harus diisi";
                   }*/
-                  if(isset($_POST['login'])) {
-                    if (empty($password)) {
-                      echo '<div class="alert alert-danger" role="alert">';
-                      echo "Password harus diisi";
-                      echo '</div>';
-                    }
-                  }
+                  // if(isset($_POST['login'])) {
+                  //   if (empty($password)) {
+                  //     echo '<div class="alert alert-danger" role="alert">';
+                  //     echo "Password harus diisi";
+                  //     echo '</div>';
+                  //   }
+                  // }
               ?>
             </div>
 
+            <div id="captcha-title"class="section-title-checkout" style="padding-top: 10px;">
+              <h2>CAPTCHA</h2>
+            </div>
+
             <div class="form-group">
-              <button class="button login" type="submit" name="login">Sign in!</button>
+               <?php include 'captcha.php' ?>
+            </div>
+
+            <div class="form-group" style="color: green; display: none;" id="valid">
+              <p style="font-size: 20px;">Captcha Done &nbsp;<i class="icofont-check-circled" style="font-size: 20px;"></i></p>
+            </div>
+
+            <div class="form-group" style="padding-top: 25px;">
+              <button id="login-btn" class="btn btn-primary login" type="submit" name="login">Sign In</button>
             </div>
           </div>
         </form>
 
         <form action="" method="GET" class="php-email-form">
-          <div class="form-group">
-            <button class="button register" type="submit" name="register">Sign up!</button>
+          <div class="d-inline-flex flex-row align-items-center" style="vertical-align: center;">
+            <div class="form-group text-center">
+              <span style="color:grey;">Need an account?</span>
+            </div>
+            <div class="form-group text-center">
+              <button class="btn btn-link register" type="submit" name="register" center>
+                Sign up!
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -233,50 +263,44 @@ if (isset($_POST["login"])) {
 
           <div class="col-lg-3 col-md-6">
             <div class="footer-info">
-              <h3>Restaurantly</h3>
-              <p>
-                A108 Adam Street <br>
-                NY 535022, USA<br><br>
-                <strong>Phone:</strong> +1 5589 55488 55<br>
-                <strong>Email:</strong> info@example.com<br>
+              <a href="index.php" class="logo mr-auto"><img src="assets/img/logo/logo-red.png" alt="" class="img-fluid" width="200"></a>
+
+              <p style="padding-top: 15px;">
+                Jl. Scientia Boulevard, Gading,<br>
+                Kec. Serpong, Tangerang, Banten 15227<br><br>
+                <strong>Phone:</strong> +62 2239 7773 4893<br>
+                <strong>Email:</strong> uts.pemweb@student.umn.ac.id<br>
               </p>
-              <div class="social-links mt-3">
-                <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
-                <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
-                <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a>
-                <a href="#" class="google-plus"><i class="bx bxl-skype"></i></a>
-                <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
-              </div>
             </div>
           </div>
 
           <div class="col-lg-2 col-md-6 footer-links">
             <h4>Useful Links</h4>
             <ul>
-              <li><i class="bx bx-chevron-right"></i> <a href="#">Home</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a href="#">About us</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a href="#">Services</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a href="#">Terms of service</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a href="#">Privacy policy</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#hero">Home</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#menu">Menu</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="checkout.php">Checkout</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="login.php">Login</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="register.php">Sign Up</a></li>
             </ul>
           </div>
 
           <div class="col-lg-3 col-md-6 footer-links">
-            <h4>Our Services</h4>
+            <h4>Our Hot Products</h4>
             <ul>
-              <li><i class="bx bx-chevron-right"></i> <a href="#">Web Design</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a href="#">Web Development</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a href="#">Product Management</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a href="#">Marketing</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a href="#">Graphic Design</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a style="cursor: pointer;">Mix Karaage Set</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a style="cursor: pointer;">Shrimp Bomb</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a style="cursor: pointer;">Kakiage Original</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a style="cursor: pointer;">Karaage Spicy</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a style="cursor: pointer;">California Roll</a></li>
             </ul>
           </div>
 
           <div class="col-lg-4 col-md-6 footer-newsletter">
-            <h4>Our Newsletter</h4>
-            <p>Tamen quem nulla quae legam multos aute sint culpa legam noster magna</p>
-            <form action="" method="post">
-              <input type="email" name="email"><input type="submit" value="Subscribe">
+            <h4>Subscribe to Our Newsletter</h4>
+            <p>Subscribe to get our latest products and hot promo of our products!</p>
+            <form action="" method="">
+              <input type="email" name="email"><input type="submit" value="Subscribe" onclick="location.href='mailto:uts.pemweb@student.umn.ac.id';">
             </form>
 
           </div>
@@ -287,14 +311,7 @@ if (isset($_POST["login"])) {
 
     <div class="container">
       <div class="copyright">
-        &copy; Copyright <strong><span>Restaurantly</span></strong>. All Rights Reserved
-      </div>
-      <div class="credits">
-        <!-- All the links in the footer should remain intact. -->
-        <!-- You can delete the links only if you purchased the pro version. -->
-        <!-- Licensing information: https://bootstrapmade.com/license/ -->
-        <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/restaurantly-restaurant-template/ -->
-        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+        &copy; Copyright <strong><span>SushiPay</span></strong>. All Rights Reserved
       </div>
     </div>
   </footer><!-- End Footer -->
@@ -319,6 +336,7 @@ if (isset($_POST["login"])) {
     (function() {
       'use strict';
       window.addEventListener('load', function() {
+        document.getElementById("login-btn").disabled = true;
         // Fetch all the forms we want to apply custom Bootstrap validation styles to
         var forms = document.getElementsByClassName('needs-validation');
         // Loop over them and prevent submission

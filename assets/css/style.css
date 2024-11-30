@@ -1,10 +1,35 @@
 /*--------------------------------------------------------------
 # General
 ---------------------------------------------------------------*/
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: "Kanit";
   background: white;
   color: #0c0b09;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 20px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 3px grey;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #fa3d16;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #b30000;
 }
 
 /* body {
@@ -748,7 +773,7 @@ section {
   letter-spacing: 2px;
   text-transform: uppercase;
   color: #8d8d8d;
-  font-family: "Arial";
+  font-family: "Meiryo", serif;
 }
 
 .section-title-checkout h2::after {
@@ -1006,7 +1031,7 @@ section {
 }
 
 .menu .menu-content {
-  margin-left: 85px;
+  /* margin-left: 85px; */
   overflow: hidden;
   display: flex;
   justify-content: space-between;
@@ -1018,7 +1043,7 @@ section {
  "...................................................................."
  "....................................................................";
   position: absolute;
-  left: 20px;
+  left: 0;
   right: 0;
   top: -4px;
   z-index: 1;
@@ -1050,7 +1075,6 @@ section {
 }
 
 .menu .menu-ingredients {
-  margin-left: 85px;
   font-style: italic;
   font-size: 14px;
   font-family: "Arial";
@@ -1551,6 +1575,33 @@ section {
 # Login
 --------------------------------------------------------------*/
 
+#login {
+  width: 100%;
+  height: 100%;
+  background: url("../img/hero-bg.jpg") top center;
+  background-size: cover;
+  position: relative;
+  padding: 0;
+}
+
+#admin {
+  width: 100%;
+  height: 100%;
+  background: url("../img/hero-bg.jpg") top center;
+  background-size:contain;
+  position: relative;
+  padding: 0;
+}
+
+#register {
+  width: 100%;
+  height: 100%;
+  background: url("../img/events-bg.jpg") top center;
+  background-size: cover;
+  position: relative;
+  padding: 0;
+}
+
 .login .login-form {
   width: 100%;
 }
@@ -1662,6 +1713,59 @@ section {
 
 .login .login-form button[type="submit"]:hover {
   background: #d3af71;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #fa3d16;
+  border-color: #fa3d16;
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.btn-primary:hover {
+  color: #fa3d16;
+  background-color: #fff;
+  border-color: #fa3d16;
+}
+
+.btn .btn-secondary {
+  color: #fff;
+  background-color: #0069d9;
+  border-color: #0069d9;
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.btn .btn-secondary:hover {
+  color: #0069d9;
+  background-color: #fff;
+  border-color: #0069d9;
+}
+
+.btn-primary:focus, .btn-primary.focus {
+  color: #fff;
+  background-color: #fa3d16;
+  border-color: #fa3d16;
+  box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.5);
+}
+
+.btn-primary.disabled, .btn-primary:disabled {
+  color: #fff;
+  background-color: #fa3d16;
+  border-color: #fa3d16;
+}
+
+.btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active,
+.show > .btn-primary.dropdown-toggle {
+  color: #fa3d16;
+  background-color: #fff;
+  border-color: #fa3d16;
+}
+
+.btn-primary:not(:disabled):not(.disabled):active:focus, .btn-primary:not(:disabled):not(.disabled).active:focus,
+.show > .btn-primary.dropdown-toggle:focus {
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
 }
 
 /*--------------------------------------------------------------

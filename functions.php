@@ -13,26 +13,25 @@ function register($data)
     $username_result = mysqli_query($db, "SELECT username FROM account WHERE username = '$username'");
     if (mysqli_fetch_assoc($email_result)) {
         echo "<script>
-                    alert('email already taken! Please use another one!')
+                    alert('Email already taken! Please use another one.')
                 </script>";
         return false;
     } else if (mysqli_fetch_assoc($username_result)) {
         echo "<script>
-                    alert('Username already taken! Please use another one!')
+                    alert('Username already taken! Please use another one.')
                 </script>";
         return false;
     }
-    // echo "tes1";
+    echo "tes1";
     //checking password
     $pass_len = strlen($password);
     if ($pass_len < 8) {
-        // echo "tes2";
+        echo "tes2";
         return false;
     }
     if ($password !== $password2) { ?>
-        <!-- <p id="err">Password doesnt match confirmation!</p> -->
-<?php
-// echo "tes2";
+        <p id="err">Password doesnt match confirmation!</p>
+<?php echo "tes2";
         return false;
     }
     //encrypt password
@@ -77,7 +76,7 @@ function upload()
     // cek apakah tdk ada gambar yang diupload
     if ($error === 4) {
         echo "<script>
-        alert('pilih gambar terlebih dahulu');
+        alert('Please insert picture first.');
         </script>";
         return false;
     }
@@ -94,13 +93,13 @@ function upload()
     //cek apakah ekstensi yg diupload ada di $ekstensiGambarValid
     if (!in_array($ekstensiGambar, $ekstensiGambarValid)) {
         echo "<script>
-        alert('yang anda upload bukanlah gambar!');
+        alert('This file is not in .jpg/.jpeg/.png format.');
         </script>";
     }
     //cek jika ukurannya terlalu besar
     if ($ukuranFile > 900000) { //kisaran 900 KB
         echo "<script>
-        alert('ukuran gambar terlalu besar!');
+        alert('File size exceeds the limit.');
         </script>";
     }
     //lolos pengecekan, gambar siap diupload
@@ -130,7 +129,6 @@ function edit($data)
     } else {
         $picture = upload();
     }
-    echo "<script>alert('$idMenu $name $description $price $oldpicture $picture');</script>";
     $query = "UPDATE menu SET
                 namaMenu = '$name',
                 deskripsiMenu = '$description',
@@ -146,7 +144,6 @@ function delete($data)
     global $db;
     $idMenu = $data["delete"];
     mysqli_query($db, "DELETE FROM menu WHERE ID_Menu = $idMenu");
-    echo "<script>alert($idMenu);</script>";
     return mysqli_affected_rows($db);
 }
 
@@ -159,28 +156,33 @@ function addShoppingCart($data)
     $deskripsi = $data["desc"];
     $harga = $data["harga"];
     $nama = $data["nama"];
-    echo "<script>alert($gambar $deskripsi $harga $nama);</script>";
+    date_default_timezone_set("Asia/Bangkok");
     $date = date('Y-m-d');
     $time = date('H:i:s');
-    $iduser = $_SESSION["id_user"];
+    $iduser = $_SESSION["user_id"];
 
-    $query = "INSERT INTO pesanan(ID_Pesanan, ID_User, tanggalPemesanan, waktuPemesanan) VALUES('',$iduser,$date,$time);";
+    $query = "INSERT INTO pesanan(ID_Pesanan, ID_User, tanggalPemesanan, waktuPemesanan) VALUES('',$iduser,'$date','$time');";
 
     mysqli_query($db, $query);
-    $tes = mysqli_affected_rows($db);
-    echo mysqli_error($db);
-    echo "<script>alert($tes);</script>";
-    return mysqli_affected_rows($db);
-    // $affected = mysqli_affected_rows($db);
+    $affected = mysqli_affected_rows($db);
+    // -------------------------------------------------------------------------------------
 
-    // $query_ID_Pesanan = "SELECT ID_Pesanan FROM pesanan WHERE ID_User = $iduser AND tanggalPemesanan = $date 
-    // AND waktuPemesanan = $time";
-
-    // $querydetail = "INSERT INTO detailpesanan(ID_Pesanan, hargaMenu, jumlah, ID_Menu,)
-    // VALUES
-    // ($query_ID_Pesanan, $harga, $jumlah, $idmenu)";
-
-    // mysqli_query($db, $querydetail);
-    // $affected += mysqli_affected_rows($db);
-    // return $affected;
+    $query_ID_Pesanan = "SELECT ID_Pesanan FROM pesanan WHERE ID_User = $iduser AND tanggalPemesanan = '$date'
+    AND waktuPemesanan = '$time'";
+    // var_dump($query_ID_Pesanan);
+    // echo "<script>alert($query_ID_Pesanan $harga $jumlah $idmenu);</script>";
+    $coba = mysqli_query($db, $query_ID_Pesanan);
+    $gatau = mysqli_fetch_assoc($coba);
+    $x = $gatau["ID_Pesanan"];
+    // var_dump($gatau);
+    $querydetail = "INSERT INTO detailpesanan(ID_Pesanan, hargaMenu, jumlah, ID_Menu)
+    VALUES
+    ($x, $harga, $jumlah, $idmenu);";
+    // var_dump($querydetail);
+    mysqli_query($db, $querydetail);
+    // $tes = mysqli_errno($db);
+    $tes = mysqli_error($db);
+    $affected += mysqli_affected_rows($db);
+    return $affected;
+    //tes
 }
